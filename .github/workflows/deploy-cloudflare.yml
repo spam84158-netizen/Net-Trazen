@@ -37,6 +37,26 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Verify Cloudflare credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID" \
+            -o /tmp/cf-account.json
+          node -e '
+            const r = require("/tmp/cf-account.json");
+            if (!r.success) {
+              console.error("Échec de vérification Cloudflare :");
+              console.error(JSON.stringify(r.errors || r.messages || []));
+              process.exit(1);
+            }
+            console.log("Authentification Cloudflare OK.");
+            console.log("Compte vérifié :", r.result.name);
+            console.log("Account ID vérifié :", r.result.id);
+          '
+
       - name: Deploy Cloudflare Worker
         run: npx wrangler deploy
         env:
