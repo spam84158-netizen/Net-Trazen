@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "info-net-trazen",
+  "name": "net-trazen",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-12",
   "observability": { "enabled": true },
